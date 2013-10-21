@@ -20,7 +20,7 @@
 using boost::asio::ip::tcp;
 namespace asio = boost::asio;
 using namespace std;
-std::ofstream trace;
+//std::ofstream trace;
 
 //! Using the synchronous http client.
 class HttpClient
@@ -61,7 +61,7 @@ private:
         {
             if (host.empty())
                 return;
-            trace<<"Conecting to " << host <<"\n"<< endl;
+            std::cout << "Conecting to " << host <<"\n"<< endl;
             tcp::resolver resolver(io_service);
             tcp::resolver::query query(host, "http");
             tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
@@ -70,7 +70,7 @@ private:
         }
         catch (std::exception& e)
         {
-            std::cout << "Exception: " << e.what() << "\n";
+            std::cerr << "Exception: " << e.what() << "\n";
         }
         return;
     }
@@ -87,15 +87,15 @@ private:
         {
             if (host.empty())
                 return false;
-    	    trace<<"Sending request\n"<<endl;
+    	    std::cerr<<"Sending request\n"<<endl;
             asio::streambuf request;
 	    std::ostream request_stream(&request);
             request_stream << "GET / HTTP/1.0\r\n";
             request_stream << "Host: " << host << "\r\n";
             request_stream << "Accept: */*\r\n";
             request_stream << "Connection: close\r\n\r\n";
-    	    trace<<"Write the socket"<< endl;
-	    trace<<"Write the request "<< endl;
+    	    std::cerr<<"Write the socket"<< endl;
+			std::cerr<<"Write the request "<< endl;
             boost::asio::write(socket, request);
             return true;
         }
@@ -121,10 +121,10 @@ private:
             std::istream response_stream(&response);
             std::string http_version;
             response_stream >> http_version;
-	    trace<<"The HTTP version is "<<http_version<<"\n"<<endl;
+			std::cerr<<"The HTTP version is "<<http_version<<"\n"<<endl;
             unsigned int status_code;
             response_stream >> status_code;
-	    trace<<"Status code is "<<status_code<<"\n"<<endl;
+			std::cerr<<"Status code is "<<status_code<<"\n"<<endl;
             std::string status_message;
             std::getline(response_stream, status_message);
             if (!response_stream || http_version.substr(0, 5) != "HTTP/")
@@ -138,7 +138,7 @@ private:
                 return "";
             }
             
-	    trace<<"The response header is reading and then passing.\n"<<endl;
+			std::cerr<<"The response header is reading and then passing.\n"<<endl;
             
 			asio::read_until(socket, response, "\r\n\r\n");
             std::string header;
@@ -283,7 +283,7 @@ int main(int argc, const char * argv[])
                  <<"Usage: "<<argv[0]<<" [host_name] for download from \"host_name\".\n";
     }
     
-    trace.open ("trace.txt");
+//    trace.open ("trace.txt");
     HttpClient client;
     auto text_content = client.ReadContent(host);
     
@@ -297,8 +297,9 @@ int main(int argc, const char * argv[])
 	file.close();
     
     std::cout<<"Complete.\n";
-    trace.close();
+//    trace.close();
 
 	return 0;
 }
+
 
